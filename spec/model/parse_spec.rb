@@ -342,4 +342,95 @@ describe Her::Model::Parse do
       expect(user.to_params).to eql(:user => {:first_name => 'Someone'})
     end
   end
+
+  describe '#to_params' do
+    before { Her::API.setup(:url => "https://api.example.com") }
+
+    context 'has_many associations' do
+      context 'include_root_in_json false' do
+        before do
+          spawn_model "Foo::Potato" do
+            include_root_in_json false
+          end
+
+          spawn_model "Foo::Thanksgiving" do
+            has_many :potatoes
+          end
+        end
+
+        it 'correctly handles empty association' do
+          tgiving = Foo::Thanksgiving.new(year: 2014)
+          expect(tgiving.to_params).to eql({:year=>2014, :potatoes=>[]})
+        end
+      end
+
+      context 'include_root_in_json true' do
+        before do
+          spawn_model "Foo::Potato" do
+            include_root_in_json true
+          end
+
+          spawn_model "Foo::Thanksgiving" do
+            has_many :potatoes
+          end
+        end
+
+        it 'serializes has_many associations' do
+          tgiving = Foo::Thanksgiving.new(year: 2014, potatoes: [Foo::Potato.new(kind: 'russet')])
+          expect(tgiving.to_params).to eql({:year=>2014, :potatoes=>[{:kind=>"russet"}]})
+        end
+
+        it 'correctly handles empty association' do
+          tgiving = Foo::Thanksgiving.new(year: 2014)
+          expect(tgiving.to_params).to eql({:year=>2014, :potatoes=>[]})
+        end
+      end
+    end
+
+    context 'has_one associations' do
+      context 'include_root_in_json false' do
+        before do
+          spawn_model "Foo::Turkey" do
+            include_root_in_json false
+          end
+
+          spawn_model "Foo::Thanksgiving" do
+            has_one :turkey
+          end
+        end
+
+        it 'serializes has_one associations' do
+          tgiving = Foo::Thanksgiving.new(year: 2014, turkey: Foo::Turkey.new(weight: 20))
+          expect(tgiving.to_params).to eql({:year=>2014, :turkey => {:weight => 20} })
+        end
+
+        it 'correctly handles nil has_one association' do
+          tgiving = Foo::Thanksgiving.new(year: 2014)
+          expect(tgiving.to_params).to eql(:year=>2014, :turkey => nil)
+        end
+      end
+
+      context 'include_root_in_json true' do
+        before do
+          spawn_model "Foo::Turkey" do
+            include_root_in_json true
+          end
+
+          spawn_model "Foo::Thanksgiving" do
+            has_one :turkey
+          end
+        end
+
+        it 'serializes has_one associations' do
+          tgiving = Foo::Thanksgiving.new(year: 2014, turkey: Foo::Turkey.new(weight: 20))
+          expect(tgiving.to_params).to eql(:year=>2014, :turkey => {:weight => 20})
+        end
+
+        it 'correctly handles nil has_one association' do
+          tgiving = Foo::Thanksgiving.new(year: 2014)
+          expect(tgiving.to_params).to eql(:year=>2014, :turkey => nil)
+        end
+      end
+    end
+  end
 end
