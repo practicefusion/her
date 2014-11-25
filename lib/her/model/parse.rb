@@ -33,7 +33,7 @@ module Her
         # @private
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.merge!(embedded_params(attributes))
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
@@ -54,18 +54,27 @@ module Her
 
 
         # @private
-        # TODO: Handle has_one
-        def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
-            params = attributes[association[:data_key]].map(&:to_params)
-            next if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map { |n| n[root] }
-            else
-              hash[association[:data_key]] = params
-            end
+        def embedded_params(attributes)
+          parameterized = associations[:has_many].inject({}) do |hash, association|
+            hash[association[:data_key]] = attributes.fetch(association[:data_key]) { [] }.map { |obj| associated_object_params(obj, association) }
             hash
+          end
+          associations[:has_one].inject(parameterized) do |hash, association|
+            hash[association[:data_key]] = associated_object_params(attributes[association[:data_key]], association)
+            hash
+          end
+        end
+
+        # @private
+        def associated_object_params(associated_object, association)
+          return unless associated_object
+          object_params = associated_object.to_params
+          association_klass =  her_nearby_class(association[:class_name])
+          if association_klass.include_root_in_json?
+            root = association_klass.root_element
+            object_params[root]
+          else
+            object_params
           end
         end
 
