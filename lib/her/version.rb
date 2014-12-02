@@ -1,3 +1,3 @@
 module Her
-  VERSION = "0.7.2"
+  VERSION = '0.7.5.pre.3'
 end

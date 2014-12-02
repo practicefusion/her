@@ -21,7 +21,7 @@ module Her
         def parse(data)
           if parse_root_in_json? && root_element_included?(data)
             if json_api_format?
-              data.fetch(parsed_root_element).first
+              Array.wrap(data.fetch(parsed_root_element)).first
             else
               data.fetch(parsed_root_element) { data }
             end
@@ -33,7 +33,7 @@ module Her
         # @private
         def to_params(attributes, changes={})
           filtered_attributes = attributes.dup.symbolize_keys
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.merge!(embedded_params(attributes))
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
               hash[attribute] = filtered_attributes[attribute]
@@ -42,7 +42,7 @@ module Her
           end
 
           if include_root_in_json?
-            if json_api_format?
+            if json_api_format? && wrap_single_elements?
               { included_root_element => [filtered_attributes] }
             else
               { included_root_element => filtered_attributes }
@@ -54,18 +54,27 @@ module Her
 
 
         # @private
-        # TODO: Handle has_one
-        def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
-            params = attributes[association[:data_key]].map(&:to_params)
-            next if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map { |n| n[root] }
-            else
-              hash[association[:data_key]] = params
-            end
+        def embedded_params(attributes)
+          parameterized = associations[:has_many].inject({}) do |hash, association|
+            hash[association[:data_key]] = attributes.fetch(association[:data_key]) { [] }.map { |obj| associated_object_params(obj, association) }
             hash
+          end
+          associations[:has_one].inject(parameterized) do |hash, association|
+            hash[association[:data_key]] = associated_object_params(attributes[association[:data_key]], association)
+            hash
+          end
+        end
+
+        # @private
+        def associated_object_params(associated_object, association)
+          return unless associated_object
+          object_params = associated_object.to_params
+          association_klass =  her_nearby_class(association[:class_name])
+          if association_klass.include_root_in_json?
+            root = association_klass.root_element
+            object_params[root]
+          else
+            object_params
           end
         end
 
@@ -79,6 +88,7 @@ module Her
         def include_root_in_json(value, options = {})
           @_her_include_root_in_json = value
           @_her_include_root_in_json_format = options[:format]
+          @_her_wrap_single_elements = options.fetch(:wrap_single_elements) { true }
         end
 
         # Return or change the value of `parse_root_in_json`
@@ -209,6 +219,11 @@ module Her
         # @private
         def parse_root_in_json?
           @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+        end
+
+        # @private
+        def wrap_single_elements?
+          @_her_wrap_single_elements || (superclass.respond_to?(:wrap_single_elements?) && superclass.wrap_single_elements?)
         end
       end
     end

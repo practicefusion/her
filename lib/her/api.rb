@@ -99,7 +99,7 @@ module Her
         else
           # For POST, PUT and DELETE requests, treat additional parameters as request body
           request.url path
-          request.body = opts
+          request.body = opts.empty? ? nil : opts
         end
       end
 

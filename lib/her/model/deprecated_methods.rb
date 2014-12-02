@@ -15,13 +15,13 @@ module Her
         object.send(new, *args)
       end
 
-      def data(*args)
-        Her::Model::DeprecatedMethods.deprecate! :data, :attributes, self, *args
-      end
+      # def data(*args)
+      #   Her::Model::DeprecatedMethods.deprecate! :data, :attributes, self, *args
+      # end
 
-      def data=(*args)
-        Her::Model::DeprecatedMethods.deprecate! :data=, :attributes=, self, *args
-      end
+      # def data=(*args)
+      #   Her::Model::DeprecatedMethods.deprecate! :data=, :attributes=, self, *args
+      # end
 
       def update_attributes(*args)
         Her::Model::DeprecatedMethods.deprecate! :update_attributes, :assign_attributes, self, *args

@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "her/version"
 
 Gem::Specification.new do |s|
-  s.name        = "her"
+  s.name        = "practicefusion-her"
   s.version     = Her::VERSION
   s.authors     = ["Rémi Prévost"]
   s.email       = ["remi@exomel.com"]
@@ -16,6 +16,8 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
+
+  s.metadata['allowed_push_host'] = 'http://gems.hq.practicefusion.com'
 
   s.add_development_dependency "rake", "~> 10.0"
   s.add_development_dependency "rspec", "~> 2.13"
