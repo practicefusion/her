@@ -6,5 +6,7 @@ require "her/middleware/accept_json"
 module Her
   module Middleware
     DefaultParseJSON = FirstLevelParseJSON
+
+    autoload :SnakeCaseParser, 'her/middleware/snake_case_parser'
   end
 end
