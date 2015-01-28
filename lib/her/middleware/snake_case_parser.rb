@@ -5,7 +5,7 @@ module Her
       def snake_caseify(val)
         case val
         when Array
-          val.map { |v| call(v) }
+          val.map { |v| snake_caseify(v) }
         when Hash
           val.deep_transform_keys { |k| k.to_s.underscore }
         else
