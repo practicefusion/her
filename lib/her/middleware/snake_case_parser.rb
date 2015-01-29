@@ -7,7 +7,7 @@ module Her
         when Array
           val.map { |v| snake_caseify(v) }
         when Hash
-          val.deep_transform_keys { |k| k.to_s.underscore }
+          Hash[val.map { |k, v| [k.to_s.underscore, snake_caseify(v)] }]
         else
           val
         end
