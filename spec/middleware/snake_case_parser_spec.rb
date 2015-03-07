@@ -10,8 +10,8 @@ describe Her::Middleware::SnakeCaseParser do
       env = { :body => body }
       subject.on_complete(env)
       env[:body].tap do |json|
-        json[:data].should == { 'root' => { 'foo_bar' => { 'baz_qux' => 1 } } }
-        json[:errors].should == [{ 'straw_man' => 2 }]
+        json[:data].should == { root: { foo_bar: { baz_qux: 1 } } }
+        json[:errors].should == [{ straw_man: 2 }]
         json[:metadata].should == 3
       end
     end

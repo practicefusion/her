@@ -7,7 +7,7 @@ module Her
         when Array
           val.map { |v| snake_caseify(v) }
         when Hash
-          Hash[val.map { |k, v| [k.to_s.underscore, snake_caseify(v)] }]
+          Hash[val.map { |k, v| [k.to_s.underscore.to_sym, snake_caseify(v)] }]
         else
           val
         end
@@ -16,8 +16,8 @@ module Her
       def on_complete(env)
         json = snake_caseify(MultiJson.load(env[:body]))
 
-        errors = json.delete('errors') || {}
-        metadata = json.delete('metadata') || {}
+        errors = json.delete(:errors) || {}
+        metadata = json.delete(:metadata) || {}
         env[:body] = {
           data: json,
           errors: errors,
