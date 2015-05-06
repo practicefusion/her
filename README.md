@@ -798,7 +798,7 @@ Just like with ActiveRecord, you can define named scopes for your models. Scopes
 class User
   include Her::Model
 
-  scope :by_role, -> { |role| where(role: role) }
+  scope :by_role, ->(role) { where(role: role) }
   scope :admins, -> { by_role('admin') }
   scope :active, -> { where(active: 1) }
 end
@@ -820,7 +820,7 @@ class User
   include Her::Model
 
   collection_path "organizations/:organization_id/users"
-  scope :for_organization, -> { |id| where(organization_id: id) }
+  scope :for_organization, ->(id) { where(organization_id: id) }
 end
 
 @user = User.for_organization(3).find(2)
@@ -980,7 +980,7 @@ end
 
 ## Upgrade
 
-See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compability issues.
+See the [UPGRADE.md](https://github.com/remiprev/her/blob/master/UPGRADE.md) for backward compatibility issues.
 
 ## Her IRL
 
