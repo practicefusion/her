@@ -3,3 +3,5 @@
 /tmp
 /coverage
 *.gem
+.rbenv-gemsets
+.ruby-version

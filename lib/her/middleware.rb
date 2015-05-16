@@ -8,5 +8,6 @@ module Her
     DefaultParseJSON = FirstLevelParseJSON
 
     autoload :SnakeCaseParser, 'her/middleware/snake_case_parser'
+    autoload :JsonApiParser,   'her/middleware/json_api_parser'
   end
 end
