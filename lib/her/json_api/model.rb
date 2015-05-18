@@ -33,6 +33,10 @@ module Her
           def self.type(type_name)
             @type = type_name.to_s
           end
+
+          def type
+            self.class.instance_variable_get('@type')
+          end
         end
       end
     end
