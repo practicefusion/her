@@ -96,7 +96,7 @@ describe Her::JsonApi::Collection do
   end
 
   context 'class macros' do
-    it 'bulk creates a collection of models' do
+    it 'bulk creates a splatted models' do
       jeremy = Foo::User.new(name: 'Jeremy Lin')
       curry = Foo::User.new(name: 'Steph Curry')
       collection = Foo::UserCollection.create(jeremy, curry)
@@ -109,6 +109,21 @@ describe Her::JsonApi::Collection do
         {
           'id' => 2, 
           'name' => 'Steph Curry'
+    it 'bulk creates a collection of models' do
+      jeremy = Foo::User.new(name: 'Jeremy Lin')
+      curry = Foo::User.new(name: 'Steph Curry')
+      collection = Foo::UserCollection.create([jeremy, curry])
+      expect(collection.class).to eql(Foo::UserCollection)
+      expect(collection.map(&:attributes)).to match_array([
+        {
+          'id' => 1,
+          'name' => 'Jeremy Lin',
+          'created_attr' => 'foo',
+        },
+        {
+          'id' => 2, 
+          'name' => 'Steph Curry',
+          'created_attr' => 'foo',
         }
       ])
     end

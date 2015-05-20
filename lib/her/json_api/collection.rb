@@ -31,6 +31,8 @@ module Her
 
       module ClassMethods
         def create(*models)
+          models.flatten!
+
           # for now only handle homogeneous collections
           model_klass = models.first.class
           params = models.map { |model|
@@ -48,6 +50,7 @@ module Her
         end
 
         def update(*models)
+          models.flatten!
           # for now only handle heterogeneous collections
           model_klass = models.first.class
           params = models.map { |model|
