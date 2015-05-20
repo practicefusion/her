@@ -29,12 +29,14 @@ describe Her::JsonApi::Collection do
                   type: 'users',
                   attributes: {
                     name: 'Jeremy Lin',
+                    created_attr: 'foo',
                   },
                 }, {
                   id:    2,
                   type: 'users',
                   attributes: {
                     name: 'Steph Curry',
+                    created_attr: 'foo',
                   },
                 },
               ]
@@ -67,6 +69,7 @@ describe Her::JsonApi::Collection do
                   type: 'users',
                   attributes: {
                     name: 'Jeremy Line',
+                    updated_attr: 'foo',
                   },
                 },
                 {
@@ -74,6 +77,7 @@ describe Her::JsonApi::Collection do
                   type: 'users',
                   attributes: {
                     name: 'Stephen Curry',
+                    updated_attr: 'foo',
                   },
                 },
               ]
@@ -105,10 +109,16 @@ describe Her::JsonApi::Collection do
         {
           'id' => 1,
           'name' => 'Jeremy Lin',
+          'created_attr' => 'foo',
         },
         {
           'id' => 2, 
-          'name' => 'Steph Curry'
+          'name' => 'Steph Curry',
+          'created_attr' => 'foo',
+        }
+      ])
+    end
+
     it 'bulk creates a collection of models' do
       jeremy = Foo::User.new(name: 'Jeremy Lin')
       curry = Foo::User.new(name: 'Steph Curry')
@@ -137,10 +147,31 @@ describe Her::JsonApi::Collection do
         {
           'id' => 1,
           'name' => 'Jeremy Line',
+          'updated_attr' => 'foo',
         },
         {
           'id' => 2, 
-          'name' => 'Stephen Curry'
+          'name' => 'Stephen Curry',
+          'updated_attr' => 'foo',
+        }
+      ])
+    end
+
+    it 'bulk updates splatted models' do
+      jeremy = Foo::User.new(id: 1, name: 'Jeremy Line')
+      curry = Foo::User.new(id: 2, name: 'Stephen Curry')
+      collection = Foo::UserCollection.update([jeremy, curry])
+      expect(collection.class).to eql(Foo::UserCollection)
+      expect(collection.map(&:attributes)).to match_array([
+        {
+          'id' => 1,
+          'name' => 'Jeremy Line',
+          'updated_attr' => 'foo',
+        },
+        {
+          'id' => 2, 
+          'name' => 'Stephen Curry',
+          'updated_attr' => 'foo',
         }
       ])
     end
@@ -156,15 +187,19 @@ describe Her::JsonApi::Collection do
         {
           'id' => 1,
           'name' => 'Jeremy Lin',
+          'created_attr' => 'foo',
         },
         {
           'id' => 2, 
-          'name' => 'Steph Curry'
+          'name' => 'Steph Curry',
+          'created_attr' => 'foo',
         }
       ])
     end
 
-    it 'bulk updates models' do
+    # NOTE usage -- does not update collection in place
+    # but rather returns an updated collection
+    it 'bulk updates models and returns them' do
       jeremy = Foo::User.new(id: 1, name: 'Jeremy Line')
       curry = Foo::User.new(id: 2, name: 'Stephen Curry')
       collection = Foo::UserCollection.new(jeremy, curry).update
@@ -173,10 +208,12 @@ describe Her::JsonApi::Collection do
         {
           'id' => 1,
           'name' => 'Jeremy Line',
+          'updated_attr' => 'foo',
         },
         {
           'id' => 2, 
-          'name' => 'Stephen Curry'
+          'name' => 'Stephen Curry',
+          'updated_attr' => 'foo',
         }
       ])
     end
