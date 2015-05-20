@@ -15,5 +15,6 @@ require "her/collection"
 module Her
   module JsonApi
     autoload :Model, 'her/json_api/model'
+    autoload :Collection, 'her/json_api/collection'
   end
 end

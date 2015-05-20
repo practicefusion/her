@@ -156,4 +156,8 @@ describe Her::JsonApi::Model do
     user = Foo::User.find(1)
     expect(user.destroy).to be_destroyed
   end
+
+  it 'destroys existing Foo::User' do
+    expect(Foo::User.destroy_existing(1)).to be_destroyed
+  end
 end

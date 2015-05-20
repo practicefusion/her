@@ -11,7 +11,10 @@ module Her
           @type = name.demodulize.tableize
           
           def self.parse(data)
-            data.fetch(:attributes).merge(data.slice(:id))
+            # this is to accommodate destroy_existing
+            # since it tries to build a model
+            # but json api returns 204 no content for destroy 
+            data.fetch(:attributes, {}).merge(data.slice(:id))
           end
 
           def self.to_params(attributes, changes={})
@@ -32,6 +35,10 @@ module Her
 
           def self.type(type_name)
             @type = type_name.to_s
+          end
+
+          def type
+            self.class.instance_variable_get('@type')
           end
         end
       end
