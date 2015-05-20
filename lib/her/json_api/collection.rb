@@ -7,6 +7,8 @@ module Her
       include Her::Model::HTTP
       include Her::Model::Paths
 
+      class MismatchedModelsException < Exception; end
+
       def initialize(*models)
         @models = models.flatten
       end
@@ -32,9 +34,11 @@ module Her
       module ClassMethods
         def create(*models)
           models.flatten!
+          return new if models.empty?
 
           # for now only handle homogeneous collections
           model_klass = models.first.class
+          raise MismatchedModelsException if models.any? { |m| m.class != model_klass }
           params = models.map { |model|
             {
               type: model.type,
@@ -51,10 +55,14 @@ module Her
 
         def update(*models)
           models.flatten!
+          return new if models.empty?
+
+          # for now only handle homogeneous collections
+          model_klass = models.first.class
+          raise MismatchedModelsException if models.any? { |m| m.class != model_klass }
+
           model_hash = Hash[ models.map { |m| [m.id, m] } ]
 
-          # for now only handle heterogeneous collections
-          model_klass = models.first.class
           params = models.map { |model|
             {
               id: model.id,
