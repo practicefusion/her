@@ -217,6 +217,22 @@ describe Her::JsonApi::Collection do
         }
       ])
     end
+
+    it 'updates in place given models' do
+      jeremy = Foo::User.new(id: 1, name: 'Jeremy Line')
+      curry = Foo::User.new(id: 2, name: 'Stephen Curry')
+      Foo::UserCollection.new(jeremy, curry).update
+      expect(jeremy.attributes).to eql(
+        'id' => 1,
+        'name' => 'Jeremy Line',
+        'updated_attr' => 'foo',
+      )
+      expect(curry.attributes).to eql(
+        'id' => 2, 
+        'name' => 'Stephen Curry',
+        'updated_attr' => 'foo',
+      )
+    end
   end
 
   #it 'bulk destroys a collection of Foo::User' do
