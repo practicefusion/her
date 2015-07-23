@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 describe Her::JsonApi::Collection do
   before do
@@ -19,7 +18,7 @@ describe Her::JsonApi::Collection do
             },
           },
         ]) do |env|
-          [ 
+          [
             201,
             {},
             {
@@ -41,7 +40,7 @@ describe Her::JsonApi::Collection do
                 },
               ]
             }.to_json
-          ] 
+          ]
         end
 
         stub.patch("/users", data: [
@@ -59,7 +58,7 @@ describe Her::JsonApi::Collection do
             },
           },
         ]) do |env|
-          [ 
+          [
             200,
             {},
             {
@@ -82,17 +81,17 @@ describe Her::JsonApi::Collection do
                 },
               ]
             }.to_json
-          ] 
+          ]
         end
 
         stub.delete("/users") { |env|
-          [ 204, {}, {}, ] 
+          [ 204, {}, {}, ]
         }
       end
 
     end
 
-    spawn_model("Foo::User", Her::JsonApi::Model)
+    spawn_model("Foo::User", type: Her::JsonApi::Model)
     class Foo::UserCollection
       include Her::JsonApi::Collection
     end
@@ -112,7 +111,7 @@ describe Her::JsonApi::Collection do
           'created_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Steph Curry',
           'created_attr' => 'foo',
         }
@@ -131,7 +130,7 @@ describe Her::JsonApi::Collection do
           'created_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Steph Curry',
           'created_attr' => 'foo',
         }
@@ -150,7 +149,7 @@ describe Her::JsonApi::Collection do
           'updated_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Stephen Curry',
           'updated_attr' => 'foo',
         }
@@ -169,7 +168,7 @@ describe Her::JsonApi::Collection do
           'updated_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Stephen Curry',
           'updated_attr' => 'foo',
         }
@@ -190,7 +189,7 @@ describe Her::JsonApi::Collection do
           'created_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Steph Curry',
           'created_attr' => 'foo',
         }
@@ -211,7 +210,7 @@ describe Her::JsonApi::Collection do
           'updated_attr' => 'foo',
         },
         {
-          'id' => 2, 
+          'id' => 2,
           'name' => 'Stephen Curry',
           'updated_attr' => 'foo',
         }
@@ -228,7 +227,7 @@ describe Her::JsonApi::Collection do
         'updated_attr' => 'foo',
       )
       expect(curry.attributes).to eql(
-        'id' => 2, 
+        'id' => 2,
         'name' => 'Stephen Curry',
         'updated_attr' => 'foo',
       )

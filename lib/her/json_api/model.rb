@@ -1,24 +1,30 @@
 module Her
   module JsonApi
     module Model
-      
+
       def self.included(klass)
         klass.class_eval do
           include Her::Model
 
+          [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
+            define_method method do |*args|
+              raise NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
+            end
+          end
+
           method_for :update, :patch
 
           @type = name.demodulize.tableize
-          
+
           def self.parse(data)
             # this is to accommodate destroy_existing
             # since it tries to build a model
-            # but json api returns 204 no content for destroy 
+            # but json api returns 204 no content for destroy
             data.fetch(:attributes, {}).merge(data.slice(:id))
           end
 
           def self.to_params(attributes, changes={})
-            request_data = { type: @type }.tap { |request_body| 
+            request_data = { type: @type }.tap { |request_body|
               attrs = attributes.dup.symbolize_keys.tap { |filtered_attributes|
                 if her_api.options[:send_only_modified_attributes]
                   filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
