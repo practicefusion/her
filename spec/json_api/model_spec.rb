@@ -1,13 +1,12 @@
 require 'spec_helper'
-require 'pry'
 
 describe Her::JsonApi::Model do
   before do
     Her::API.setup :url => "https://api.example.com" do |connection|
       connection.use Her::Middleware::JsonApiParser
       connection.adapter :test do |stub|
-        stub.get("/users/1") do |env| 
-          [ 
+        stub.get("/users/1") do |env|
+          [
             200,
             {},
             {
@@ -18,13 +17,13 @@ describe Her::JsonApi::Model do
                   name: "Roger Federer",
                 },
               }
-              
+
             }.to_json
-          ] 
+          ]
         end
 
-        stub.get("/users") do |env| 
-          [ 
+        stub.get("/users") do |env|
+          [
             200,
             {},
             {
@@ -35,7 +34,7 @@ describe Her::JsonApi::Model do
                   attributes: {
                     name: "Roger Federer",
                   },
-                }, 
+                },
                 {
                   id:    2,
                   type: 'users',
@@ -45,7 +44,7 @@ describe Her::JsonApi::Model do
                 }
               ]
             }.to_json
-          ] 
+          ]
         end
 
         stub.post("/users", data: {
@@ -54,7 +53,7 @@ describe Her::JsonApi::Model do
             name: "Jeremy Lin",
           },
         }) do |env|
-          [ 
+          [
             201,
             {},
             {
@@ -65,9 +64,9 @@ describe Her::JsonApi::Model do
                   name: 'Jeremy Lin',
                 },
               }
-              
+
             }.to_json
-          ] 
+          ]
         end
 
         stub.patch("/users/1", data: {
@@ -77,7 +76,7 @@ describe Her::JsonApi::Model do
             name: "Fed GOAT",
           },
         }) do |env|
-          [ 
+          [
             200,
             {},
             {
@@ -88,23 +87,23 @@ describe Her::JsonApi::Model do
                   name: 'Fed GOAT',
                 },
               }
-              
+
             }.to_json
-          ] 
+          ]
         end
 
         stub.delete("/users/1") { |env|
-          [ 204, {}, {}, ] 
+          [ 204, {}, {}, ]
         }
       end
 
     end
 
-    spawn_model("Foo::User", Her::JsonApi::Model)
+    spawn_model("Foo::User", type: Her::JsonApi::Model)
   end
 
   it 'allows configuration of type' do
-    spawn_model("Foo::Bar", Her::JsonApi::Model) do
+    spawn_model("Foo::Bar", type: Her::JsonApi::Model) do
       type :foobars
     end
 
@@ -159,5 +158,13 @@ describe Her::JsonApi::Model do
 
   it 'destroys existing Foo::User' do
     expect(Foo::User.destroy_existing(1)).to be_destroyed
+  end
+
+  context 'undefined methods' do
+    it 'removes methods that are not compatible with json api' do
+      [:parse_root_in_json, :include_root_in_json, :root_element, :primary_key].each do |method|
+        expect { Foo::User.new.send(method, :foo) }.to raise_error NoMethodError, "Her::JsonApi::Model does not support the #{method} configuration option"
+      end
+    end
   end
 end

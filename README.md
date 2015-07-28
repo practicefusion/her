@@ -586,35 +586,44 @@ users = Users.all
 
 #### JSON API support
 
-If the API returns data in the [JSON API format](http://jsonapi.org/) you need
-to configure Her as follows:
+To consume a JSON API 1.0 compliant service, it must return data in accordance with the [JSON API spec](http://jsonapi.org/). The general format
+of the data is as follows: 
+
+```json
+{ "data": {
+  "type": "developers",
+  "id": "6ab79c8c-ec5a-4426-ad38-8763bbede5a7",
+  "attributes": {
+    "language": "ruby",
+    "name": "avdi grimm",
+  }
+}
+```
+
+Then to setup your models:
 
 ```ruby
-class User
-  include Her::Model
-  parse_root_in_json true, format: :json_api
+class Contributor
+  include Her::JsonApi::Model
+
+  # defaults to demodulized, pluralized class name, e.g. contributors
+  type :developers
 end
 ```
 
-The JSON API spec recommends that individual resource representations be represented as a single "resource object". 
+Finally, you'll need to use the included JsonApiParser Her middleware:
 
 ```ruby
-user = User.find(1)
-# GET "/users/1", response is { "users": { "id": 1, "fullname": "Lindsay Fünke" } }
-```
+Her::API.setup url: 'https://my_awesome_json_api_service' do |c|
+  # Request
+  c.use FaradayMiddleware::EncodeJson
 
-However, Her will also handle responses where individual resources are wrapped in an array, as shown below.
+  # Response
+  c.use Her::Middleware::JsonApiParser
 
-```ruby
-user = User.find(1)
-# GET "/users/1", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }] }
-```
-
-Multiple resources should always be wrapped in an array.
-
-```ruby
-users = User.all
-# GET "/users", response is { "users": [{ "id": 1, "fullname": "Lindsay Fünke" }, { "id": 2, "fullname": "Tobias Fünke" }] }
+  # Adapter
+  c.use Faraday::Adapter::NetHttp
+end
 ```
 
 For sending objects in JSON API format, you must decide whether to wrap individual resources in an array. For backwards compatibility, Her will wrap the object.
