@@ -410,6 +410,18 @@ end
 # => [#<Comment id=nil body="Just a draft" archived=false user_id=1>]
 ```
 
+You can also implement an upsert style call by provider the ``create`` method an \#id attibute.
+
+```ruby
+class Comment
+  include Her::Model
+end
+
+@user = Comment.create(id: "1234", body: "Just a draft")
+# PUT "/users/comments/1234" with `body=Just+a+draft.`
+# => [#<Comment id=1234 body="Just a draft">]
+```
+
 #### Notes about paths
 
 Resources must always have all the required attributes to build their complete path. For example, if you have these models:
@@ -587,7 +599,7 @@ users = Users.all
 #### JSON API support
 
 To consume a JSON API 1.0 compliant service, it must return data in accordance with the [JSON API spec](http://jsonapi.org/). The general format
-of the data is as follows: 
+of the data is as follows:
 
 ```json
 { "data": {
